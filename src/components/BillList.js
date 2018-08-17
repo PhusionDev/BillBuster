@@ -1,11 +1,14 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { ListView } from 'react-native';
+import { ListView, View, Text } from 'react-native';
+import Bill from './Bill';
 
 class BillList extends Component {
   render() {
     return (
-      <ListView />
+      <View>
+        <Text>Hi</Text>
+      </View>
     );
   }
 };
