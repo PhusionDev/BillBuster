@@ -1,21 +1,121 @@
 import React, { Component } from 'react';
 import { View, Text, Picker } from 'react-native';
 import { connect } from 'react-redux';
-import { CardSection, Input } from './common';
+import { Card, CardSection, Input, Button } from './common';
 import { billUpdate } from '../actions';
+import DatePicker from 'react-native-datepicker';
 
 import {
-  BILL_ONE_TIME,
-  BILL_DAYS,
-  BILL_WEEKS,
-  BILL_MONTHS,
-  BILL_YEARS
+  RECURRING_DAYS,
+  RECURRING_WEEKS,
+  RECURRING_MONTHS,
+  RECURRING_YEARS
 } from '../reducers/types';
 
 class BillForm extends Component {
-  render() {
+  buttonOneTime() {
+    this.props.billUpdate({prop: 'recurring', value: false});
+  }
+
+  buttonRecurring() {
+    this.props.billUpdate({prop: 'recurring', value: true})
+  }
+
+  billType() {
+    if (this.props.recurring) {
+      return this.billTypeRecurring();
+    }
+  }
+
+  renderDatePicker() {
+    return (
+      <DatePicker
+        mode='date'
+        placeholder='select date'
+        date={this.props.date}
+        confirmBtnText='Confirm'
+        cancelBtnText='Cancel'
+        format="YYYY-MM-DD"
+        minDate="2018-01-01"
+        maxDate="2500-12-31"
+        onDateChange={value => this.props.billUpdate({ prop: 'date', value })}
+      />
+    );
+  }
+
+  renderBillDate() {
     return (
       <View>
+        <CardSection>
+          <Text>Bill Date</Text>
+        </CardSection>
+
+        <CardSection>
+          <CardSection style={{flex: 1, flexDirection: 'column'}}>
+            <Text style={{fontSize: 14}}>Month</Text>
+            <Input
+              placeholder="month"
+            />
+          </CardSection>
+          <CardSection style={{flex: 1, flexDirection: 'column'}}>
+            <Text style={{fontSize: 14}}>Day</Text>
+            <Input
+              placeholder="day"
+            />
+          </CardSection>
+          <CardSection style={{flex: 1, flexDirection: 'column'}}>
+            <Text style={{fontSize: 14}}>Year</Text>
+            <Input
+              placeholder="year"
+            />
+          </CardSection>
+        </CardSection>
+      </View>
+    );
+  }
+
+  billTypeRecurring() {
+    return (
+      <View style={{ flex: 1}}>
+        <CardSection>
+          <Text>Recurring Every</Text>
+        </CardSection>
+
+        <CardSection >
+          <Input
+            style={styles.recurringInputStyle}
+            placeholder="1"
+            value={this.props.spread}
+            onChangeText={value => this.props.billUpdate({prop: 'spread', value})}
+          />
+
+          <Picker
+            style={styles.pickerStyle}
+            selectedValue={this.props.recurring_type}
+            onValueChange={value => this.props.billUpdate({ prop: 'recurring_type', value })}
+          >
+            <Picker.Item label={RECURRING_DAYS} value={RECURRING_DAYS} />
+            <Picker.Item label={RECURRING_WEEKS} value={RECURRING_WEEKS} />
+            <Picker.Item label={RECURRING_MONTHS} value={RECURRING_MONTHS} />
+            <Picker.Item label={RECURRING_YEARS} value={RECURRING_YEARS} />
+          </Picker>
+        </CardSection>
+      </View>
+    );
+  }
+
+  render() {
+    return (
+      <Card>
+        <CardSection>
+          <Button onPress={() => {this.buttonOneTime()}}>
+            One Time
+          </Button>
+          <Button onPress={() => {this.buttonRecurring()}}>
+            Recurring
+          </Button>
+        </CardSection>
+
         <CardSection>
           <Input
             label="Name"
@@ -25,43 +125,41 @@ class BillForm extends Component {
           />
         </CardSection>
 
-        <CardSection style={{ flexDirection: 'column' }}>
-          <Text style={styles.pickerTextStyle}>Select Bill Type</Text>
-          <Picker
-            selectedValue={this.props.type}
-            onValueChange={value => this.props.billUpdate({ prop: 'type', value })}
-          >
-            <Picker.Item label={BILL_ONE_TIME} value={BILL_ONE_TIME} />
-            <Picker.Item label={BILL_DAYS} value={BILL_DAYS} />
-            <Picker.Item label={BILL_WEEKS} value={BILL_WEEKS} />
-            <Picker.Item label={BILL_MONTHS} value={BILL_MONTHS} />
-            <Picker.Item label={BILL_YEARS} value={BILL_YEARS} />
-          </Picker>
+        <CardSection>
+          {this.renderDatePicker()}
         </CardSection>
 
         <CardSection>
-          <Input
-            label="Frequency"
-            placeholder="1"
-            value={this.props.spread}
-            onChangeText={value => this.props.billUpdate({prop: 'spread', value})}
-          />
+          {this.billType()}
         </CardSection>
-      </View>
+
+        <CardSection>
+          <Button>
+            Create New Bill
+          </Button>
+        </CardSection>
+      </Card>
     );
   }
 }
 
 const mapStateToProps = state => {
-  const { name, type, date, spread, active } = state.billForm;
+  const { name, date, spread, recurring, recurring_type, active } = state.billForm;
 
-  return { name, type, date, spread, active };
+  return { name, date, spread, recurring, recurring_type, active };
 };
 
 const styles = {
   pickerTextStyle: {
     fontSize: 18,
     paddingLeft: 20
+  },
+  recurringInputStyle: {
+    flex: 1,
+    fontSize: 18
+  },
+  pickerStyle: {
+    flex: 2
   }
 };
 

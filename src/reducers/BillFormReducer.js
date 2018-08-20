@@ -5,18 +5,15 @@ import {
 } from '../actions/types';
 
 import {
-  BILL_ONE_TIME,
-  BILL_DAYS,
-  BILL_WEEKS,
-  BILL_MONTHS,
-  BILL_YEARS
+  RECURRING_MONTHS
 } from './types';
 
 const INITIAL_STATE = {
   name: '',
-  type: BILL_ONE_TIME,
   date: '',
   spread: '1',
+  recurring: false,
+  recurring_type: RECURRING_MONTHS,
   active: true
 };
 
