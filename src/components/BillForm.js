@@ -13,12 +13,76 @@ import {
 } from '../reducers/types';
 
 class BillForm extends Component {
+  validFormData() {
+    if (this.validName()) {
+      if (this.validDate()) {
+        if (this.validSpread()) {
+          if (this.validRecurring()) {
+            if (this.validRecurringType()) {
+              return true;
+            }
+          }
+        }
+      }
+    }
+
+    return false;
+  }
+  validName() {
+    if (this.props.name !== '' ) {
+      return true;
+    }
+    return false;
+  }
+  validDate() {
+    if (this.props.date !== '') {
+      return true;
+    }
+    return false;
+  }
+  validSpread() {
+    if (this.props.spread !== '') {
+      let number = Number.parseInt(this.props.spread)
+      if (!Number.isNaN(number)) {
+        if (number > 0) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+  validRecurring() {
+    if (this.props.recurring === true || this.props.recurring === false) {
+      return true;
+    }
+    return false;
+  }
+  validRecurringType() {
+    switch (this.props.recurring_type) {
+      case RECURRING_DAYS:
+        return true;
+      case RECURRING_WEEKS:
+        return true;
+      case RECURRING_MONTHS:
+        return true;
+      case RECURRING_YEARS:
+        return true;
+      default:
+        return false;
+    }
+  }
+
   buttonOneTime() {
     this.props.billUpdate({prop: 'recurring', value: false});
+    this.props.billUpdate({prop: 'spread', value: '1' })
   }
 
   buttonRecurring() {
     this.props.billUpdate({prop: 'recurring', value: true})
+  }
+
+  buttonCreateBill() {
+    alert(this.validFormData());
   }
 
   billType() {
@@ -43,50 +107,19 @@ class BillForm extends Component {
     );
   }
 
-  renderBillDate() {
-    return (
-      <View>
-        <CardSection>
-          <Text>Bill Date</Text>
-        </CardSection>
-
-        <CardSection>
-          <CardSection style={{flex: 1, flexDirection: 'column'}}>
-            <Text style={{fontSize: 14}}>Month</Text>
-            <Input
-              placeholder="month"
-            />
-          </CardSection>
-          <CardSection style={{flex: 1, flexDirection: 'column'}}>
-            <Text style={{fontSize: 14}}>Day</Text>
-            <Input
-              placeholder="day"
-            />
-          </CardSection>
-          <CardSection style={{flex: 1, flexDirection: 'column'}}>
-            <Text style={{fontSize: 14}}>Year</Text>
-            <Input
-              placeholder="year"
-            />
-          </CardSection>
-        </CardSection>
-      </View>
-    );
-  }
-
   billTypeRecurring() {
     return (
-      <View style={{ flex: 1}}>
+      <CardSection style={{ flexDirection: 'column' }}>
         <CardSection>
           <Text>Recurring Every</Text>
         </CardSection>
 
-        <CardSection >
+        <CardSection style={{ flexDirection: 'row' }}>
           <Input
             style={styles.recurringInputStyle}
             placeholder="1"
             value={this.props.spread}
-            onChangeText={value => this.props.billUpdate({prop: 'spread', value})}
+            onChangeText={value => this.props.billUpdate({ prop: 'spread', value })}
           />
 
           <Picker
@@ -100,7 +133,7 @@ class BillForm extends Component {
             <Picker.Item label={RECURRING_YEARS} value={RECURRING_YEARS} />
           </Picker>
         </CardSection>
-      </View>
+      </CardSection>
     );
   }
 
@@ -129,12 +162,10 @@ class BillForm extends Component {
           {this.renderDatePicker()}
         </CardSection>
 
-        <CardSection>
-          {this.billType()}
-        </CardSection>
+        {this.billType()}
 
         <CardSection>
-          <Button>
+          <Button onPress={() => {this.buttonCreateBill()}}>
             Create New Bill
           </Button>
         </CardSection>
